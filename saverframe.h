@@ -6,17 +6,15 @@
 class SaverFrame : public wxFrame
 {
   public:
-    SaverFrame(const wxPoint &aPos, const wxSize &aSize);
-    ~SaverFrame();
+    SaverFrame(const wxString &aPath, const wxPoint &aPos, const wxSize &aSize);
 
     void OnPaint(const wxPaintEvent &e);
-    void OnTimer(const wxTimerEvent &e);
+
+    void LoadNextImage();
 
   private:
-    void loadRandomImage();
-
     wxGraphicsRenderer *renderer;
-    wxTimer *timer;
     wxImage img;
+    int img_index;
     wxArrayString files;
 };

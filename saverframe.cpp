@@ -1,9 +1,11 @@
+#include <algorithm>
+#include <random>
 #include <wx/dcgraph.h>
 #include <wx/dir.h>
 
 #include "saverframe.h"
 
-SaverFrame::SaverFrame(const wxPoint &aPos, const wxSize &aSize)
+SaverFrame::SaverFrame(const wxString &aPath, const wxPoint &aPos, const wxSize &aSize)
     : wxFrame(NULL, wxID_ANY, "PhotoScreensaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */)
 {
     renderer = wxGraphicsRenderer::GetDirect2DRenderer();
@@ -11,19 +13,15 @@ SaverFrame::SaverFrame(const wxPoint &aPos, const wxSize &aSize)
     Bind(wxEVT_PAINT, &SaverFrame::OnPaint, this);
 
     for (const auto ext : {"*.jpg", "*.jpeg", "*.png"})
-        wxDir::GetAllFiles("d:/downloads/wallpapers", &files, ext);
+        wxDir::GetAllFiles(aPath, &files, ext);
 
-    loadRandomImage();
+    std::random_device rd;
+    std::mt19937 g(rd());
 
-    Bind(wxEVT_TIMER, &SaverFrame::OnTimer, this);
-    timer = new wxTimer(this);
-    timer->Start(10000);
-}
+    std::shuffle(files.begin(), files.end(), g);
+    img_index = 0;
 
-SaverFrame::~SaverFrame()
-{
-    timer->Stop();
-    delete timer;
+    LoadNextImage();
 }
 
 void SaverFrame::OnPaint(const wxPaintEvent &e)
@@ -43,12 +41,13 @@ void SaverFrame::OnPaint(const wxPaintEvent &e)
                    img.GetWidth(), img.GetHeight());
 }
 
-void SaverFrame::loadRandomImage()
+void SaverFrame::LoadNextImage()
 {
     if (files.size() == 0)
         return;
 
-    wxString filename = files[rand() % files.size()];
+    wxString filename = files[img_index++];
+    img_index %= files.size();
     img = wxImage(filename);
 
     // Rescale to fit
@@ -60,10 +59,4 @@ void SaverFrame::loadRandomImage()
         scale = sz.y * 1.0 / img.GetHeight();
 
     img.Rescale(ceil(img.GetWidth() * scale), ceil(img.GetHeight() * scale), wxIMAGE_QUALITY_BICUBIC);
-}
-
-void SaverFrame::OnTimer(const wxTimerEvent &e)
-{
-    loadRandomImage();
-    Refresh();
 }

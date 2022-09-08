@@ -23,6 +23,7 @@ class App : public wxApp
     virtual void OnInitCmdLine(wxCmdLineParser &parser);
     virtual bool OnCmdLineParsed(wxCmdLineParser &parser);
 
+    void OnTimer(const wxTimerEvent &e);
     void OnClose(wxEvent &e);
     void OnFrameClose(wxCloseEvent &e);
 
@@ -30,6 +31,7 @@ class App : public wxApp
     int enumerated_monitor = 1;
 
   private:
+    Config config;
     bool show_config = false;
     bool show_preview = false;
     long preview_hwnd = 0;
@@ -37,6 +39,8 @@ class App : public wxApp
 
     std::vector<RECT> monitors;
     std::vector<SaverFrame *> frames;
+    int update_frame = 0;
+    wxTimer timer;
 };
 
 wxIMPLEMENT_APP(App);
@@ -50,11 +54,13 @@ bool App::OnInit()
 
     if (show_config)
     {
-        CONFIG *frame = new CONFIG(nullptr);
+        CONFIG_DIALOG *frame = new CONFIG_DIALOG(config);
+        SetTopWindow(frame);
         frame->Show();
     }
     else if (show_preview)
     {
+        // TODO
         return false;
     }
     else
@@ -80,18 +86,18 @@ bool App::OnCmdLineParsed(wxCmdLineParser &parser)
 
 void App::StartScreensaver()
 {
-    srand(time(0));
-
-#define MARGIN 30
     LPARAM lparam = reinterpret_cast<LPARAM>(this);
 
     EnumDisplayMonitors(NULL, NULL, &App::monitorEnumProc, lparam);
 
     for (const auto &rect : monitors)
     {
-        SaverFrame *frame =
-            new SaverFrame(wxPoint(rect.left + MARGIN, rect.top + MARGIN),
-                           wxSize(rect.right - rect.left - 2 * MARGIN, rect.bottom - rect.top - 2 * MARGIN));
+        const wxString path =
+            (rect.right - rect.left > rect.bottom - rect.top) ? config.landscapeDir : config.portraitDir;
+
+        SaverFrame *frame = new SaverFrame(
+            path, wxPoint(rect.left + config.margins, rect.top + config.margins),
+            wxSize(rect.right - rect.left - 2 * config.margins, rect.bottom - rect.top - 2 * config.margins));
 
         frame->Show();
         frame->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
@@ -99,7 +105,30 @@ void App::StartScreensaver()
 
         frames.push_back(frame);
     }
-#undef MARGIN
+
+    Bind(wxEVT_TIMER, &App::OnTimer, this);
+    timer.Start(config.period * 1000);
+}
+
+void App::OnTimer(const wxTimerEvent &e)
+{
+    if (frames.empty())
+        return;
+
+    if (config.stagger)
+    {
+        auto frame = frames[update_frame++];
+        update_frame %= frames.size();
+        frame->LoadNextImage();
+        frame->Refresh();
+    }
+    else
+    {
+        for (const auto &frame : frames)
+            frame->LoadNextImage();
+        for (const auto &frame : frames)
+            frame->Refresh();
+    }
 }
 
 BOOL CALLBACK App::monitorEnumProc(HMONITOR hmonitor, HDC hdc, LPRECT rect, LPARAM lparam)
@@ -114,9 +143,7 @@ BOOL CALLBACK App::monitorEnumProc(HMONITOR hmonitor, HDC hdc, LPRECT rect, LPAR
 void App::OnClose(wxEvent &e)
 {
     for (const auto &frame : frames)
-    {
         frame->Close();
-    }
 }
 
 void App::OnFrameClose(wxCloseEvent &e)
