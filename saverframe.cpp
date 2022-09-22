@@ -47,7 +47,7 @@ class ImageScanner : public wxDirTraverser
 
 SaverFrame::SaverFrame(const wxString &aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint &aPos,
                        const wxSize &aSize)
-    : wxFrame(NULL, wxID_ANY, "PhotoScreensaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */), scaleMode(aScale)
+    : wxFrame(NULL, wxID_ANY, "PhotoScreensaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */), scaleMode(aScale), bitmap_index(0)
 {
     renderer = wxGraphicsRenderer::GetDirect2DRenderer();
 
@@ -60,10 +60,29 @@ SaverFrame::SaverFrame(const wxString &aPath, const bool aRecursive, const Confi
     std::shuffle(files.begin(), files.end(), generator);
     img_index = 0;
 
-    LoadNextImage();
-
+    for (int i = 0; i < 3; i++)
+    {
+        LoadNextImage(true);
+        Increment(true);
+    }
     Bind(wxEVT_PAINT, &SaverFrame::OnPaint, this);
     Bind(wxEVT_ERASE_BACKGROUND, &SaverFrame::OnErase, this);
+}
+
+wxSize SaverFrame::getScaledSize(const wxSize &originalSize)
+{
+    double scale = 1;
+    wxSize sz = GetSize();
+
+    bool ratioBigger = sz.x * originalSize.y > sz.y * originalSize.x;
+
+    if (ratioBigger && scaleMode == Config::SCALE::FILL || !ratioBigger && scaleMode == Config::SCALE::FIT)
+        scale = sz.x * 1.0 / originalSize.x;
+
+    if (!ratioBigger && scaleMode == Config::SCALE::FILL || ratioBigger && scaleMode == Config::SCALE::FIT)
+        scale = sz.y * 1.0 / originalSize.y;
+
+    return wxSize(originalSize.x * scale, originalSize.y * scale);
 }
 
 void SaverFrame::Draw()
@@ -72,35 +91,57 @@ void SaverFrame::Draw()
     wxGraphicsContext *gc = renderer->CreateContext(dc);
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
-    // Rescale to fit
-    double scale = 1;
-    wxSize sz = GetSize();
-
-    bool ratioBigger = sz.x * originalImgSize.y > sz.y * originalImgSize.x;
-
-    if (ratioBigger && scaleMode == Config::SCALE::FILL || !ratioBigger && scaleMode == Config::SCALE::FIT)
-        scale = sz.x * 1.0 / originalImgSize.x;
-
-    if (!ratioBigger && scaleMode == Config::SCALE::FILL || ratioBigger && scaleMode == Config::SCALE::FIT)
-        scale = sz.y * 1.0 / originalImgSize.y;
-
-    wxSize newSize = wxSize(originalImgSize.x * scale, originalImgSize.y * scale);
-
     gc->SetBrush(*wxBLACK_BRUSH);
-    gc->DrawRectangle(0, 0, sz.x, sz.y);
-    gc->DrawBitmap(bitmap, (sz.x - newSize.x) / 2, (sz.y - newSize.y) / 2, newSize.x, newSize.y);
+    gc->DrawRectangle(0, 0, GetSize().x, GetSize().y);
+
+    drawBitmap(gc, currentBitmap(), currentBitmapSize());
 
     delete gc;
 }
 
-void SaverFrame::LoadNextImage()
+void SaverFrame::Transition(bool forward, double tick)
+{
+    wxWindowDC dc(this);
+    wxGraphicsContext *gc = renderer->CreateContext(dc);
+    gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
+
+    gc->SetBrush(*wxBLACK_BRUSH);
+    gc->DrawRectangle(0, 0, GetSize().x, GetSize().y);
+
+    drawBitmap(gc, currentBitmap(), currentBitmapSize());
+    gc->BeginLayer(tick);
+    if (forward)
+        drawBitmap(gc, nextBitmap(), nextBitmapSize());
+    else
+        drawBitmap(gc, prevBitmap(), prevBitmapSize());
+    gc->EndLayer();
+
+    delete gc;
+}
+
+void SaverFrame::drawBitmap(wxGraphicsContext *gc, wxGraphicsBitmap &bitmap, wxSize &originalSize)
+{
+    wxSize newSize = getScaledSize(originalSize);
+    gc->DrawBitmap(bitmap, (GetSize().x - newSize.x) / 2, (GetSize().y - newSize.y) / 2, newSize.x, newSize.y);
+}
+
+void SaverFrame::Increment(bool forward)
+{
+    int increment = forward ? 1 : -1;
+    bitmap_index += increment;
+    bitmap_index %= 3;
+}
+
+void SaverFrame::LoadNextImage(bool forward)
 {
     if (files.size() == 0)
         return;
 
-    wxString filename = files[img_index++];
+    int increment = forward ? 1 : -1;
+    wxString filename = files[img_index];
+    img_index += increment;
     img_index %= files.size();
     wxImage img(filename);
-    bitmap = renderer->CreateBitmapFromImage(img);
-    originalImgSize = wxSize(img.GetWidth(), img.GetHeight());
+    bitmaps[(bitmap_index + 1) % 3] = renderer->CreateBitmapFromImage(img);
+    originalImgSizes[(bitmap_index + 1) % 3] = wxSize(img.GetWidth(), img.GetHeight());
 }

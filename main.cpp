@@ -100,12 +100,14 @@ void App::StartScreensaver()
             wxSize(rect.right - rect.left - 2 * config.margins, rect.bottom - rect.top - 2 * config.margins));
 
         frame->Show();
-        frame->Draw();
         frame->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
         frame->Bind(wxEVT_CLOSE_WINDOW, &App::OnFrameClose, this);
 
         frames.push_back(frame);
     }
+
+    for (const auto &frame : frames)
+        frame->Draw();
 
     Bind(wxEVT_TIMER, &App::OnTimer, this);
     timer.Start(config.period * 1000);
@@ -120,15 +122,30 @@ void App::OnTimer(const wxTimerEvent &e)
     {
         auto frame = frames[update_frame++];
         update_frame %= frames.size();
-        frame->LoadNextImage();
+        for (double tick = 0.02; tick < 1.0; tick += .02)
+        {
+            frame->Transition(true, tick);
+            wxMilliSleep(16);
+        }
+        frame->Increment(true);
         frame->Draw();
+        frame->LoadNextImage(true);
     }
     else
     {
+        for (double tick = 0.02; tick < 1.0; tick += .02)
+        {
+            for (const auto &frame : frames)
+                frame->Transition(true, tick);
+            wxMilliSleep(16);
+        }
         for (const auto &frame : frames)
-            frame->LoadNextImage();
-        for (const auto &frame : frames)
+        {
+            frame->Increment(true);
             frame->Draw();
+        }
+        for (const auto &frame : frames)
+            frame->LoadNextImage(true);
     }
 }
 
