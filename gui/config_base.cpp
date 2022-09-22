@@ -46,6 +46,9 @@ CONFIG_BASE::CONFIG_BASE( wxWindow* parent, wxWindowID id, const wxString& title
 
 	sbSizer1->Add( fgSizer1, 1, wxEXPAND, 5 );
 
+	m_recursiveScan = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Scan folders recursively"), wxDefaultPosition, wxDefaultSize, 0 );
+	sbSizer1->Add( m_recursiveScan, 0, wxALL, 5 );
+
 
 	bSizer3->Add( sbSizer1, 0, wxEXPAND|wxTOP|wxRIGHT|wxLEFT, 5 );
 

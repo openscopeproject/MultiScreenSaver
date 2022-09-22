@@ -9,10 +9,11 @@ struct Config
 {
     wxString landscapeDir;
     wxString portraitDir;
+    bool recursive;
     enum SCALE
     {
-        FIT,
         FILL,
+        FIT,
         ORIGINAL,
     } scale;
     int period;

@@ -17,10 +17,10 @@
 #include <wx/settings.h>
 #include <wx/filepicker.h>
 #include <wx/sizer.h>
+#include <wx/checkbox.h>
 #include <wx/statbox.h>
 #include <wx/choice.h>
 #include <wx/spinctrl.h>
-#include <wx/checkbox.h>
 #include <wx/panel.h>
 #include <wx/frame.h>
 
@@ -40,6 +40,7 @@ class CONFIG_BASE : public wxFrame
 		wxDirPickerCtrl* m_landscapeDir;
 		wxStaticText* m_staticText2;
 		wxDirPickerCtrl* m_portraitDir;
+		wxCheckBox* m_recursiveScan;
 		wxStaticText* m_staticText5;
 		wxChoice* m_scale;
 		wxStaticText* m_staticText3;
