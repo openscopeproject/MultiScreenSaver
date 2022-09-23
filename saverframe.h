@@ -5,13 +5,15 @@
 
 #include "config.h"
 
-class SaverFrame : public wxFrame
+class RenderWindow : public wxWindow
 {
   public:
-    SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
-               const wxSize& aSize);
+    RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale);
 
-    void OnPaint(const wxPaintEvent& e){};
+    void OnPaint(const wxPaintEvent& e)
+    {
+        Draw();
+    };
     void OnErase(const wxEraseEvent& e){};
     void Draw();
     void Transition(bool forward, double tick);
@@ -56,4 +58,13 @@ class SaverFrame : public wxFrame
     int img_index;
     int bitmap_index;
     wxArrayString files;
+};
+
+class SaverFrame : public wxFrame
+{
+  public:
+    SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
+               const wxSize& aSize);
+
+    RenderWindow* renderer;
 };

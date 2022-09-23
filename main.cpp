@@ -43,7 +43,8 @@ class App : public wxApp
 
     std::vector<RECT> monitors;
     std::vector<SaverFrame*> frames;
-    int update_frame = 0;
+    std::vector<RenderWindow*> renderers;
+    int update_renderer = 0;
     wxTimer timer;
 };
 
@@ -64,11 +65,43 @@ bool App::OnInit()
     }
     else if (show_preview)
     {
-        // TODO
-        return false;
+        wxWindow* wnd = new wxWindow();
+#pragma warning(push)
+#pragma warning(disable : 4312)
+        wnd->SetHWND((WXHWND)preview_hwnd);
+#pragma warning(pop)
+
+        RenderWindow* renderer = new RenderWindow(wnd, config.landscapeDir, config.recursive, config.scale);
+        renderers.push_back(renderer);
+        SetTopWindow(renderer);
+        renderer->Show();
+
+        StartScreensaver();
     }
     else
     {
+        LPARAM lparam = reinterpret_cast<LPARAM>(this);
+
+        EnumDisplayMonitors(NULL, NULL, &App::monitorEnumProc, lparam);
+
+        for (const auto& rect : monitors)
+        {
+            const wxString path =
+                (rect.right - rect.left > rect.bottom - rect.top) ? config.landscapeDir : config.portraitDir;
+
+            SaverFrame* frame = new SaverFrame(
+                path, config.recursive, config.scale, wxPoint(rect.left + config.margins, rect.top + config.margins),
+                wxSize(rect.right - rect.left - 2 * config.margins, rect.bottom - rect.top - 2 * config.margins));
+
+            frame->Show();
+            frame->renderer->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
+            frame->renderer->Bind(wxEVT_CLOSE_WINDOW, &App::OnFrameClose, this);
+            frame->renderer->Bind(wxEVT_KEY_DOWN, &App::OnKey, this);
+
+            frames.push_back(frame);
+            renderers.push_back(frame->renderer);
+        }
+
         StartScreensaver();
     }
 
@@ -90,29 +123,8 @@ bool App::OnCmdLineParsed(wxCmdLineParser& parser)
 
 void App::StartScreensaver()
 {
-    LPARAM lparam = reinterpret_cast<LPARAM>(this);
-
-    EnumDisplayMonitors(NULL, NULL, &App::monitorEnumProc, lparam);
-
-    for (const auto& rect : monitors)
-    {
-        const wxString path =
-            (rect.right - rect.left > rect.bottom - rect.top) ? config.landscapeDir : config.portraitDir;
-
-        SaverFrame* frame = new SaverFrame(
-            path, config.recursive, config.scale, wxPoint(rect.left + config.margins, rect.top + config.margins),
-            wxSize(rect.right - rect.left - 2 * config.margins, rect.bottom - rect.top - 2 * config.margins));
-
-        frame->Show();
-        frame->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
-        frame->Bind(wxEVT_CLOSE_WINDOW, &App::OnFrameClose, this);
-        frame->Bind(wxEVT_KEY_DOWN, &App::OnKey, this);
-
-        frames.push_back(frame);
-    }
-
-    for (const auto& frame : frames)
-        frame->Draw();
+    for (const auto& renderer : renderers)
+        renderer->Draw();
 
     Bind(wxEVT_TIMER, &App::OnTimer, this);
     timer.Start(config.period * 1000);
@@ -120,7 +132,7 @@ void App::StartScreensaver()
 
 void App::OnTimer(const wxTimerEvent& e)
 {
-    if (frames.empty())
+    if (renderers.empty())
         return;
 
     switchImage(true);
@@ -131,38 +143,38 @@ void App::switchImage(bool forward)
     if (config.stagger)
     {
         if (forward)
-            update_frame = (update_frame + 1) % frames.size();
+            update_renderer = (update_renderer + 1) % renderers.size();
 
-        auto frame = frames[update_frame];
+        RenderWindow* renderer = renderers[update_renderer];
 
         for (double tick = 0.02; tick < 1.0; tick += .02)
         {
-            frame->Transition(forward, tick);
+            renderer->Transition(forward, tick);
             wxMilliSleep(16);
         }
 
-        frame->Increment(forward);
-        frame->Draw();
-        frame->LoadNextImage(forward);
+        renderer->Increment(forward);
+        renderer->Draw();
+        renderer->LoadNextImage(forward);
 
         if (!forward)
-            update_frame = (update_frame + frames.size() - 1) % frames.size();
+            update_renderer = (update_renderer + renderers.size() - 1) % renderers.size();
     }
     else
     {
         for (double tick = 0.02; tick < 1.0; tick += .02)
         {
-            for (const auto& frame : frames)
-                frame->Transition(forward, tick);
+            for (const auto& renderer : renderers)
+                renderer->Transition(forward, tick);
             wxMilliSleep(16);
         }
-        for (const auto& frame : frames)
+        for (const auto& renderer : renderers)
         {
-            frame->Increment(forward);
-            frame->Draw();
+            renderer->Increment(forward);
+            renderer->Draw();
         }
-        for (const auto& frame : frames)
-            frame->LoadNextImage(forward);
+        for (const auto& renderer : renderers)
+            renderer->LoadNextImage(forward);
     }
 }
 

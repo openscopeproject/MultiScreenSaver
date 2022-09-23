@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "(msvc) Attach",
+            "type": "cppvsdbg",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        },
+        {
             "name": "(msvc) Launch",
             "type": "cppvsdbg",
             "request": "launch",

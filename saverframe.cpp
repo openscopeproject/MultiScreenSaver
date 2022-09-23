@@ -45,9 +45,9 @@ class ImageScanner : public wxDirTraverser
     wxArrayString &files;
 };
 
-SaverFrame::SaverFrame(const wxString &aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint &aPos,
-                       const wxSize &aSize)
-    : wxFrame(NULL, wxID_ANY, "PhotoScreensaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */), scaleMode(aScale), bitmap_index(0)
+RenderWindow::RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale)
+    : wxWindow(parent, wxID_ANY, wxPoint(0, 0), parent->GetClientSize(), wxBORDER_NONE), scaleMode(aScale),
+      bitmap_index(0)
 {
     renderer = wxGraphicsRenderer::GetDirect2DRenderer();
 
@@ -65,11 +65,11 @@ SaverFrame::SaverFrame(const wxString &aPath, const bool aRecursive, const Confi
         LoadNextImage(true);
         Increment(true);
     }
-    Bind(wxEVT_PAINT, &SaverFrame::OnPaint, this);
-    Bind(wxEVT_ERASE_BACKGROUND, &SaverFrame::OnErase, this);
+    Bind(wxEVT_PAINT, &RenderWindow::OnPaint, this);
+    Bind(wxEVT_ERASE_BACKGROUND, &RenderWindow::OnErase, this);
 }
 
-wxSize SaverFrame::getScaledSize(const wxSize &originalSize)
+wxSize RenderWindow::getScaledSize(const wxSize& originalSize)
 {
     double scale = 1;
     wxSize sz = GetSize();
@@ -85,9 +85,9 @@ wxSize SaverFrame::getScaledSize(const wxSize &originalSize)
     return wxSize(originalSize.x * scale, originalSize.y * scale);
 }
 
-void SaverFrame::Draw()
+void RenderWindow::Draw()
 {
-    wxWindowDC dc(this);
+    wxWindowDC dc(GetParent());
     wxGraphicsContext *gc = renderer->CreateContext(dc);
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
@@ -99,9 +99,9 @@ void SaverFrame::Draw()
     delete gc;
 }
 
-void SaverFrame::Transition(bool forward, double tick)
+void RenderWindow::Transition(bool forward, double tick)
 {
-    wxWindowDC dc(this);
+    wxWindowDC dc(GetParent());
     wxGraphicsContext *gc = renderer->CreateContext(dc);
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
@@ -119,18 +119,18 @@ void SaverFrame::Transition(bool forward, double tick)
     delete gc;
 }
 
-void SaverFrame::drawBitmap(wxGraphicsContext *gc, wxGraphicsBitmap &bitmap, wxSize &originalSize)
+void RenderWindow::drawBitmap(wxGraphicsContext* gc, wxGraphicsBitmap& bitmap, wxSize& originalSize)
 {
     wxSize newSize = getScaledSize(originalSize);
     gc->DrawBitmap(bitmap, (GetSize().x - newSize.x) / 2, (GetSize().y - newSize.y) / 2, newSize.x, newSize.y);
 }
 
-void SaverFrame::Increment(bool forward)
+void RenderWindow::Increment(bool forward)
 {
     bitmap_index = (bitmap_index + (forward ? 1 : 2)) % 3;
 }
 
-void SaverFrame::LoadNextImage(bool forward)
+void RenderWindow::LoadNextImage(bool forward)
 {
     if (files.size() == 0)
         return;
@@ -142,4 +142,14 @@ void SaverFrame::LoadNextImage(bool forward)
     wxImage img(filename);
     bitmaps[(bitmap_index + increment + 3) % 3] = renderer->CreateBitmapFromImage(img);
     originalImgSizes[(bitmap_index + increment + 3) % 3] = wxSize(img.GetWidth(), img.GetHeight());
+}
+
+SaverFrame::SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
+                       const wxSize& aSize)
+    : wxFrame(nullptr, wxID_ANY, "PhotoScreensaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */)
+{
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    SetSizer(sizer);
+    renderer = new RenderWindow(this, aPath, aRecursive, aScale);
+    sizer->Add(renderer, 1, wxGROW, 0);
 }
