@@ -1,1 +1,1 @@
-#include "wx/msw/wx.rc"
+APP_ICON ICON "icon/appicon.ico"

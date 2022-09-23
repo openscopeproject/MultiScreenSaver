@@ -43,6 +43,7 @@ set(APP_SRC
     main.cpp
     saverframe.cpp
 )
+set(APP_RESOURCES app.rc)
 add_subdirectory("gui")
 set(CMAKE_EXECUTABLE_SUFFIX .scr)
 
@@ -51,3 +52,10 @@ target_link_libraries(${PROJECT_NAME} GUI)
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ".")
+
+ADD_CUSTOM_COMMAND(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\dpiawarescaleing.manifest\" -inputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1 -outputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1
+    COMMENT "Adding display aware manifest..."
+)

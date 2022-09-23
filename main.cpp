@@ -46,6 +46,7 @@ class App : public wxApp
     std::vector<RenderWindow*> renderers;
     int update_renderer = 0;
     wxTimer timer;
+    wxIconBundle icons;
 };
 
 wxIMPLEMENT_APP(App);
@@ -57,9 +58,12 @@ bool App::OnInit()
     wxImage::AddHandler(new wxJPEGHandler());
     wxImage::AddHandler(new wxPNGHandler());
 
+    icons = wxIconBundle("APP_ICON", 0);
+
     if (show_config)
     {
         CONFIG_DIALOG* frame = new CONFIG_DIALOG(config);
+        frame->SetIcons(icons);
         SetTopWindow(frame);
         frame->Show();
     }
@@ -93,6 +97,7 @@ bool App::OnInit()
                 path, config.recursive, config.scale, wxPoint(rect.left + config.margins, rect.top + config.margins),
                 wxSize(rect.right - rect.left - 2 * config.margins, rect.bottom - rect.top - 2 * config.margins));
 
+            frame->SetIcons(icons);
             frame->Show();
             frame->renderer->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
             frame->renderer->Bind(wxEVT_CLOSE_WINDOW, &App::OnFrameClose, this);
