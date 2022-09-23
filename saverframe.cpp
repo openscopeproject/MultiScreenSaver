@@ -127,9 +127,7 @@ void SaverFrame::drawBitmap(wxGraphicsContext *gc, wxGraphicsBitmap &bitmap, wxS
 
 void SaverFrame::Increment(bool forward)
 {
-    int increment = forward ? 1 : -1;
-    bitmap_index += increment;
-    bitmap_index %= 3;
+    bitmap_index = (bitmap_index + (forward ? 1 : 2)) % 3;
 }
 
 void SaverFrame::LoadNextImage(bool forward)
@@ -140,8 +138,8 @@ void SaverFrame::LoadNextImage(bool forward)
     int increment = forward ? 1 : -1;
     wxString filename = files[img_index];
     img_index += increment;
-    img_index %= files.size();
+    img_index = (img_index + files.size()) % files.size();
     wxImage img(filename);
-    bitmaps[(bitmap_index + 1) % 3] = renderer->CreateBitmapFromImage(img);
-    originalImgSizes[(bitmap_index + 1) % 3] = wxSize(img.GetWidth(), img.GetHeight());
+    bitmaps[(bitmap_index + increment + 3) % 3] = renderer->CreateBitmapFromImage(img);
+    originalImgSizes[(bitmap_index + increment + 3) % 3] = wxSize(img.GetWidth(), img.GetHeight());
 }

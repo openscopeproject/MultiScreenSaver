@@ -18,7 +18,6 @@ struct Config
     } scale;
     int period;
     int margins;
-    bool preload;
     bool stagger;
 
     Config();
@@ -28,12 +27,12 @@ struct Config
 class CONFIG_DIALOG : public CONFIG_BASE
 {
   public:
-    CONFIG_DIALOG(Config &config);
+    CONFIG_DIALOG(Config& config);
 
-    void OnClose(wxCloseEvent &e);
+    void OnClose(wxCloseEvent& e);
 
   private:
-    Config &m_config;
+    Config& m_config;
 };
 
 #endif // __config__

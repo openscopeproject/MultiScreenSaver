@@ -95,15 +95,29 @@ CONFIG_BASE::CONFIG_BASE( wxWindow* parent, wxWindowID id, const wxString& title
 
 	sbSizer2->Add( fgSizer2, 0, wxEXPAND, 5 );
 
-	m_preload = new wxCheckBox( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Preload images (uses more RAM)"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_preload->SetValue(true);
-	sbSizer2->Add( m_preload, 0, wxALL|wxEXPAND, 5 );
-
 	m_stagger = new wxCheckBox( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Stagger updates on different monitors"), wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizer2->Add( m_stagger, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizer3->Add( sbSizer2, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	bSizer3->Add( sbSizer2, 0, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+
+	wxStaticBoxSizer* sbSizer3;
+	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( m_panel1, wxID_ANY, wxT("Keyboard actions") ), wxVERTICAL );
+
+	m_staticText6 = new wxStaticText( sbSizer3->GetStaticBox(), wxID_ANY, wxT("<Space> - pause/resume slideshow"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText6->Wrap( -1 );
+	sbSizer3->Add( m_staticText6, 0, wxALL, 5 );
+
+	m_staticText7 = new wxStaticText( sbSizer3->GetStaticBox(), wxID_ANY, wxT("Arrow keys - next/previous image"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7->Wrap( -1 );
+	sbSizer3->Add( m_staticText7, 0, wxALL, 5 );
+
+	m_staticText8 = new wxStaticText( sbSizer3->GetStaticBox(), wxID_ANY, wxT("<Escape> or mouse click - exit"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8->Wrap( -1 );
+	sbSizer3->Add( m_staticText8, 0, wxALL, 5 );
+
+
+	bSizer3->Add( sbSizer3, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 
 
 	m_panel1->SetSizer( bSizer3 );

@@ -81,5 +81,5 @@
     },
     "editor.formatOnSave": true,
     "C_Cpp.clang_format_fallbackStyle": "Visual Studio",
-    "C_Cpp.clang_format_style": "Microsoft",
+    "C_Cpp.clang_format_style": "file",
 }

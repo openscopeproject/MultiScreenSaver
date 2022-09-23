@@ -47,8 +47,10 @@ class CONFIG_BASE : public wxFrame
 		wxSpinCtrl* m_period;
 		wxStaticText* m_staticText4;
 		wxSpinCtrl* m_margins;
-		wxCheckBox* m_preload;
 		wxCheckBox* m_stagger;
+		wxStaticText* m_staticText6;
+		wxStaticText* m_staticText7;
+		wxStaticText* m_staticText8;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }

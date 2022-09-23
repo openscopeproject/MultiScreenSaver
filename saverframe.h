@@ -8,11 +8,11 @@
 class SaverFrame : public wxFrame
 {
   public:
-    SaverFrame(const wxString &aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint &aPos,
-               const wxSize &aSize);
+    SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
+               const wxSize& aSize);
 
-    void OnPaint(const wxPaintEvent &e){};
-    void OnErase(const wxEraseEvent &e){};
+    void OnPaint(const wxPaintEvent& e){};
+    void OnErase(const wxEraseEvent& e){};
     void Draw();
     void Transition(bool forward, double tick);
     void Increment(bool forward);
@@ -20,36 +20,36 @@ class SaverFrame : public wxFrame
     void LoadNextImage(bool forward);
 
   private:
-    wxGraphicsBitmap &currentBitmap()
+    wxGraphicsBitmap& currentBitmap()
     {
         return bitmaps[bitmap_index % 3];
     };
-    wxGraphicsBitmap &nextBitmap()
+    wxGraphicsBitmap& nextBitmap()
     {
         return bitmaps[(bitmap_index + 1) % 3];
     };
-    wxGraphicsBitmap &prevBitmap()
+    wxGraphicsBitmap& prevBitmap()
     {
         return bitmaps[(bitmap_index + 2) % 3];
     };
-    wxSize &currentBitmapSize()
+    wxSize& currentBitmapSize()
     {
         return originalImgSizes[bitmap_index % 3];
     };
-    wxSize &nextBitmapSize()
+    wxSize& nextBitmapSize()
     {
         return originalImgSizes[(bitmap_index + 1) % 3];
     };
-    wxSize &prevBitmapSize()
+    wxSize& prevBitmapSize()
     {
         return originalImgSizes[(bitmap_index + 2) % 3];
     };
 
-    void drawBitmap(wxGraphicsContext *gc, wxGraphicsBitmap &bitmap, wxSize &originalSize);
+    void drawBitmap(wxGraphicsContext* gc, wxGraphicsBitmap& bitmap, wxSize& originalSize);
 
-    wxSize getScaledSize(const wxSize &originalSize);
+    wxSize getScaledSize(const wxSize& originalSize);
 
-    wxGraphicsRenderer *renderer;
+    wxGraphicsRenderer* renderer;
     wxSize originalImgSizes[3];
     wxGraphicsBitmap bitmaps[3];
     Config::SCALE scaleMode;
