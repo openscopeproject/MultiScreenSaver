@@ -24,40 +24,40 @@ class RenderWindow : public wxWindow
   private:
     wxGraphicsBitmap& currentBitmap()
     {
-        return bitmaps[bitmap_index % 3];
+        return m_bitmaps[m_bitmapIndex % 3];
     };
     wxGraphicsBitmap& nextBitmap()
     {
-        return bitmaps[(bitmap_index + 1) % 3];
+        return m_bitmaps[(m_bitmapIndex + 1) % 3];
     };
     wxGraphicsBitmap& prevBitmap()
     {
-        return bitmaps[(bitmap_index + 2) % 3];
+        return m_bitmaps[(m_bitmapIndex + 2) % 3];
     };
     wxSize& currentBitmapSize()
     {
-        return originalImgSizes[bitmap_index % 3];
+        return m_originalImgSizes[m_bitmapIndex % 3];
     };
     wxSize& nextBitmapSize()
     {
-        return originalImgSizes[(bitmap_index + 1) % 3];
+        return m_originalImgSizes[(m_bitmapIndex + 1) % 3];
     };
     wxSize& prevBitmapSize()
     {
-        return originalImgSizes[(bitmap_index + 2) % 3];
+        return m_originalImgSizes[(m_bitmapIndex + 2) % 3];
     };
 
     void drawBitmap(wxGraphicsContext* gc, wxGraphicsBitmap& bitmap, wxSize& originalSize);
 
     wxSize getScaledSize(const wxSize& originalSize);
 
-    wxGraphicsRenderer* renderer;
-    wxSize originalImgSizes[3];
-    wxGraphicsBitmap bitmaps[3];
-    Config::SCALE scaleMode;
-    int img_index;
-    int bitmap_index;
-    wxArrayString files;
+    wxGraphicsRenderer* m_renderer;
+    wxSize m_originalImgSizes[3];
+    wxGraphicsBitmap m_bitmaps[3];
+    Config::SCALE m_scaleMode;
+    int m_imgIndex;
+    int m_bitmapIndex;
+    wxArrayString m_files;
 };
 
 class SaverFrame : public wxFrame

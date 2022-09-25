@@ -35,18 +35,18 @@ class App : public wxApp
   private:
     void switchImage(bool forward);
 
-    Config config;
-    bool show_config = false;
-    bool show_preview = false;
-    long preview_hwnd = 0;
     static BOOL CALLBACK monitorEnumProc(HMONITOR hmonitor, HDC hdc, LPRECT rect, LPARAM lparam);
 
-    std::vector<RECT> monitors;
-    std::vector<SaverFrame*> frames;
-    std::vector<RenderWindow*> renderers;
-    int update_renderer = 0;
-    wxTimer timer;
-    wxIconBundle icons;
+    Config m_config;
+    bool m_showConfig = false;
+    bool m_showPreview = false;
+    long m_previewHwnd = 0;
+    std::vector<RECT> m_monitors;
+    std::vector<SaverFrame*> m_frames;
+    std::vector<RenderWindow*> m_renderers;
+    int m_updateRenderer = 0;
+    wxTimer m_timer;
+    wxIconBundle m_icons;
 };
 
 wxIMPLEMENT_APP(App);
@@ -58,25 +58,25 @@ bool App::OnInit()
     wxImage::AddHandler(new wxJPEGHandler());
     wxImage::AddHandler(new wxPNGHandler());
 
-    icons = wxIconBundle("APP_ICON", 0);
+    m_icons = wxIconBundle("APP_ICON", 0);
 
-    if (show_config)
+    if (m_showConfig)
     {
-        CONFIG_DIALOG* frame = new CONFIG_DIALOG(config);
-        frame->SetIcons(icons);
+        CONFIG_DIALOG* frame = new CONFIG_DIALOG(m_config);
+        frame->SetIcons(m_icons);
         SetTopWindow(frame);
         frame->Show();
     }
-    else if (show_preview)
+    else if (m_showPreview)
     {
         wxWindow* wnd = new wxWindow();
 #pragma warning(push)
 #pragma warning(disable : 4312)
-        wnd->SetHWND((WXHWND)preview_hwnd);
+        wnd->SetHWND((WXHWND)m_previewHwnd);
 #pragma warning(pop)
 
-        RenderWindow* renderer = new RenderWindow(wnd, config.landscapeDir, config.recursive, config.scale);
-        renderers.push_back(renderer);
+        RenderWindow* renderer = new RenderWindow(wnd, m_config.landscapeDir, m_config.recursive, m_config.scale);
+        m_renderers.push_back(renderer);
         SetTopWindow(renderer);
         renderer->Show();
 
@@ -88,23 +88,24 @@ bool App::OnInit()
 
         EnumDisplayMonitors(NULL, NULL, &App::monitorEnumProc, lparam);
 
-        for (const auto& rect : monitors)
+        for (const auto& rect : m_monitors)
         {
             const wxString path =
-                (rect.right - rect.left > rect.bottom - rect.top) ? config.landscapeDir : config.portraitDir;
+                (rect.right - rect.left > rect.bottom - rect.top) ? m_config.landscapeDir : m_config.portraitDir;
 
             SaverFrame* frame = new SaverFrame(
-                path, config.recursive, config.scale, wxPoint(rect.left + config.margins, rect.top + config.margins),
-                wxSize(rect.right - rect.left - 2 * config.margins, rect.bottom - rect.top - 2 * config.margins));
+                path, m_config.recursive, m_config.scale,
+                wxPoint(rect.left + m_config.margins, rect.top + m_config.margins),
+                wxSize(rect.right - rect.left - 2 * m_config.margins, rect.bottom - rect.top - 2 * m_config.margins));
 
-            frame->SetIcons(icons);
+            frame->SetIcons(m_icons);
             frame->Show();
             frame->renderer->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
             frame->renderer->Bind(wxEVT_CLOSE_WINDOW, &App::OnFrameClose, this);
             frame->renderer->Bind(wxEVT_KEY_DOWN, &App::OnKey, this);
 
-            frames.push_back(frame);
-            renderers.push_back(frame->renderer);
+            m_frames.push_back(frame);
+            m_renderers.push_back(frame->renderer);
         }
 
         StartScreensaver();
@@ -120,24 +121,24 @@ void App::OnInitCmdLine(wxCmdLineParser& parser)
 
 bool App::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-    show_config = !parser.Found("s") && !parser.Found("S") && !parser.Found("p") && !parser.Found("P");
-    show_preview = parser.Found("p", &preview_hwnd) || parser.Found("P", &preview_hwnd);
+    m_showConfig = !parser.Found("s") && !parser.Found("S") && !parser.Found("p") && !parser.Found("P");
+    m_showPreview = parser.Found("p", &m_previewHwnd) || parser.Found("P", &m_previewHwnd);
 
     return true;
 }
 
 void App::StartScreensaver()
 {
-    for (const auto& renderer : renderers)
+    for (const auto& renderer : m_renderers)
         renderer->Draw();
 
     Bind(wxEVT_TIMER, &App::OnTimer, this);
-    timer.Start(config.period * 1000);
+    m_timer.Start(m_config.period * 1000);
 }
 
 void App::OnTimer(const wxTimerEvent& e)
 {
-    if (renderers.empty())
+    if (m_renderers.empty())
         return;
 
     switchImage(true);
@@ -145,12 +146,12 @@ void App::OnTimer(const wxTimerEvent& e)
 
 void App::switchImage(bool forward)
 {
-    if (config.stagger)
+    if (m_config.stagger)
     {
         if (forward)
-            update_renderer = (update_renderer + 1) % renderers.size();
+            m_updateRenderer = (m_updateRenderer + 1) % m_renderers.size();
 
-        RenderWindow* renderer = renderers[update_renderer];
+        RenderWindow* renderer = m_renderers[m_updateRenderer];
 
         for (double tick = 0.02; tick < 1.0; tick += .02)
         {
@@ -163,22 +164,22 @@ void App::switchImage(bool forward)
         renderer->LoadNextImage(forward);
 
         if (!forward)
-            update_renderer = (update_renderer + renderers.size() - 1) % renderers.size();
+            m_updateRenderer = (m_updateRenderer + m_renderers.size() - 1) % m_renderers.size();
     }
     else
     {
         for (double tick = 0.02; tick < 1.0; tick += .02)
         {
-            for (const auto& renderer : renderers)
+            for (const auto& renderer : m_renderers)
                 renderer->Transition(forward, tick);
             wxMilliSleep(16);
         }
-        for (const auto& renderer : renderers)
+        for (const auto& renderer : m_renderers)
         {
             renderer->Increment(forward);
             renderer->Draw();
         }
-        for (const auto& renderer : renderers)
+        for (const auto& renderer : m_renderers)
             renderer->LoadNextImage(forward);
     }
 }
@@ -187,24 +188,24 @@ BOOL CALLBACK App::monitorEnumProc(HMONITOR hmonitor, HDC hdc, LPRECT rect, LPAR
 {
     App* app = reinterpret_cast<App*>(lparam);
 
-    app->monitors.push_back(*rect);
+    app->m_monitors.push_back(*rect);
 
     return true;
 }
 
 void App::OnClose(wxEvent& e)
 {
-    for (const auto& frame : frames)
+    for (const auto& frame : m_frames)
         frame->Close();
 }
 
 void App::OnFrameClose(wxCloseEvent& e)
 {
     SaverFrame* frame = static_cast<SaverFrame*>(e.GetEventObject());
-    std::vector<SaverFrame*>::iterator where = std::find(frames.begin(), frames.end(), frame);
+    std::vector<SaverFrame*>::iterator where = std::find(m_frames.begin(), m_frames.end(), frame);
 
-    if (where != frames.end())
-        frames.erase(where);
+    if (where != m_frames.end())
+        m_frames.erase(where);
 
     frame->Destroy();
 }
@@ -213,10 +214,10 @@ void App::OnKey(wxKeyEvent& e)
 {
     if (e.GetUnicodeKey() == WXK_SPACE)
     {
-        if (timer.IsRunning())
-            timer.Stop();
+        if (m_timer.IsRunning())
+            m_timer.Stop();
         else
-            timer.Start(config.period * 1000);
+            m_timer.Start(m_config.period * 1000);
     }
     else if (e.GetKeyCode() == WXK_LEFT || e.GetKeyCode() == WXK_RIGHT)
     {

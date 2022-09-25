@@ -50,7 +50,7 @@
             <property name="size">500,-1</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP|wxSYSTEM_MENU</property>
             <property name="subclass">; ; forward_declare</property>
-            <property name="title">PhotoScreensaver configuration</property>
+            <property name="title">MultiScreenSaver configuration</property>
             <property name="tooltip"></property>
             <property name="two_step_creation">0</property>
             <property name="window_extra_style"></property>

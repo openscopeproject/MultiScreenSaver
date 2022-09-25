@@ -5,7 +5,7 @@
 Config::Config()
 {
     // read settings from registry
-    wxRegConfig reg("PhotoScreensaver", "OpenScopeProject");
+    wxRegConfig reg("MultiScreenSaver", "OpenScopeProject");
 
     landscapeDir = reg.Read("landscapeDir", "");
     portraitDir = reg.Read("portraitDir", "");
@@ -18,7 +18,7 @@ Config::Config()
 
 void Config::SaveToRegistry()
 {
-    wxRegConfig reg("PhotoScreensaver", "OpenScopeProject");
+    wxRegConfig reg("MultiScreenSaver", "OpenScopeProject");
 
     reg.Write("landscapeDir", landscapeDir);
     reg.Write("portraitDir", portraitDir);

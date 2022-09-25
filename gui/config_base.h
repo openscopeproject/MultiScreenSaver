@@ -58,7 +58,7 @@ class CONFIG_BASE : public wxFrame
 
 	public:
 
-		CONFIG_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("PhotoScreensaver configuration"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,-1 ), long style = wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		CONFIG_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("MultiScreenSaver configuration"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,-1 ), long style = wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~CONFIG_BASE();
 

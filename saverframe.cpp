@@ -46,19 +46,19 @@ class ImageScanner : public wxDirTraverser
 };
 
 RenderWindow::RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale)
-    : wxWindow(parent, wxID_ANY, wxPoint(0, 0), parent->GetClientSize(), wxBORDER_NONE), scaleMode(aScale),
-      bitmap_index(0)
+    : wxWindow(parent, wxID_ANY, wxPoint(0, 0), parent->GetClientSize(), wxBORDER_NONE), m_scaleMode(aScale),
+      m_bitmapIndex(0)
 {
-    renderer = wxGraphicsRenderer::GetDirect2DRenderer();
+    m_renderer = wxGraphicsRenderer::GetDirect2DRenderer();
 
     wxDir dir(aPath);
-    dir.Traverse(ImageScanner(aPath, aRecursive, files));
+    dir.Traverse(ImageScanner(aPath, aRecursive, m_files));
 
     std::random_device rd;
     std::mt19937 generator(rd());
 
-    std::shuffle(files.begin(), files.end(), generator);
-    img_index = 0;
+    std::shuffle(m_files.begin(), m_files.end(), generator);
+    m_imgIndex = 0;
 
     for (int i = 0; i < 3; i++)
     {
@@ -76,10 +76,10 @@ wxSize RenderWindow::getScaledSize(const wxSize& originalSize)
 
     bool ratioBigger = sz.x * originalSize.y > sz.y * originalSize.x;
 
-    if (ratioBigger && scaleMode == Config::SCALE::FILL || !ratioBigger && scaleMode == Config::SCALE::FIT)
+    if (ratioBigger && m_scaleMode == Config::SCALE::FILL || !ratioBigger && m_scaleMode == Config::SCALE::FIT)
         scale = sz.x * 1.0 / originalSize.x;
 
-    if (!ratioBigger && scaleMode == Config::SCALE::FILL || ratioBigger && scaleMode == Config::SCALE::FIT)
+    if (!ratioBigger && m_scaleMode == Config::SCALE::FILL || ratioBigger && m_scaleMode == Config::SCALE::FIT)
         scale = sz.y * 1.0 / originalSize.y;
 
     return wxSize(originalSize.x * scale, originalSize.y * scale);
@@ -88,7 +88,7 @@ wxSize RenderWindow::getScaledSize(const wxSize& originalSize)
 void RenderWindow::Draw()
 {
     wxWindowDC dc(GetParent());
-    wxGraphicsContext *gc = renderer->CreateContext(dc);
+    wxGraphicsContext* gc = m_renderer->CreateContext(dc);
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
     gc->SetBrush(*wxBLACK_BRUSH);
@@ -102,7 +102,7 @@ void RenderWindow::Draw()
 void RenderWindow::Transition(bool forward, double tick)
 {
     wxWindowDC dc(GetParent());
-    wxGraphicsContext *gc = renderer->CreateContext(dc);
+    wxGraphicsContext* gc = m_renderer->CreateContext(dc);
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
     gc->SetBrush(*wxBLACK_BRUSH);
@@ -127,26 +127,26 @@ void RenderWindow::drawBitmap(wxGraphicsContext* gc, wxGraphicsBitmap& bitmap, w
 
 void RenderWindow::Increment(bool forward)
 {
-    bitmap_index = (bitmap_index + (forward ? 1 : 2)) % 3;
+    m_bitmapIndex = (m_bitmapIndex + (forward ? 1 : 2)) % 3;
 }
 
 void RenderWindow::LoadNextImage(bool forward)
 {
-    if (files.size() == 0)
+    if (m_files.size() == 0)
         return;
 
     int increment = forward ? 1 : -1;
-    wxString filename = files[img_index];
-    img_index += increment;
-    img_index = (img_index + files.size()) % files.size();
+    wxString filename = m_files[m_imgIndex];
+    m_imgIndex += increment;
+    m_imgIndex = (m_imgIndex + m_files.size()) % m_files.size();
     wxImage img(filename);
-    bitmaps[(bitmap_index + increment + 3) % 3] = renderer->CreateBitmapFromImage(img);
-    originalImgSizes[(bitmap_index + increment + 3) % 3] = wxSize(img.GetWidth(), img.GetHeight());
+    m_bitmaps[(m_bitmapIndex + increment + 3) % 3] = m_renderer->CreateBitmapFromImage(img);
+    m_originalImgSizes[(m_bitmapIndex + increment + 3) % 3] = wxSize(img.GetWidth(), img.GetHeight());
 }
 
 SaverFrame::SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
                        const wxSize& aSize)
-    : wxFrame(nullptr, wxID_ANY, "PhotoScreensaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */)
+    : wxFrame(nullptr, wxID_ANY, "MultiScreenSaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */)
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     SetSizer(sizer);
