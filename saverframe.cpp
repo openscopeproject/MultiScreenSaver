@@ -72,7 +72,7 @@ RenderWindow::RenderWindow(wxWindow* parent, const wxString& aPath, const bool a
 wxSize RenderWindow::getScaledSize(const wxSize& originalSize)
 {
     double scale = 1;
-    wxSize sz = GetSize();
+    wxSize sz = GetParent()->GetSize();
 
     bool ratioBigger = sz.x * originalSize.y > sz.y * originalSize.x;
 
@@ -92,21 +92,35 @@ void RenderWindow::Draw()
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
     gc->SetBrush(*wxBLACK_BRUSH);
-    gc->DrawRectangle(0, 0, GetSize().x, GetSize().y);
+    gc->DrawRectangle(0, 0, GetParent()->GetSize().x, GetParent()->GetSize().y);
 
-    drawBitmap(gc, currentBitmap(), currentBitmapSize());
+    if (m_files.size() == 0)
+    {
+        wxDouble width;
+        wxDouble height;
+        gc->SetFont(gc->CreateFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT).Scaled(4), *wxWHITE));
+        gc->GetTextExtent("No images found", &width, &height);
+        gc->DrawText("No images found", GetSize().x / 2 - width / 2, GetSize().y / 2 - height / 2);
+    }
+    else
+    {
+        drawBitmap(gc, currentBitmap(), currentBitmapSize());
+    }
 
     delete gc;
 }
 
 void RenderWindow::Transition(bool forward, double tick)
 {
+    if (m_files.size() == 0)
+        return;
+
     wxWindowDC dc(GetParent());
     wxGraphicsContext* gc = m_renderer->CreateContext(dc);
     gc->SetInterpolationQuality(wxInterpolationQuality::wxINTERPOLATION_BEST);
 
     gc->SetBrush(*wxBLACK_BRUSH);
-    gc->DrawRectangle(0, 0, GetSize().x, GetSize().y);
+    gc->DrawRectangle(0, 0, GetParent()->GetSize().x, GetParent()->GetSize().y);
 
     drawBitmap(gc, currentBitmap(), currentBitmapSize());
     gc->BeginLayer(tick);
@@ -122,7 +136,8 @@ void RenderWindow::Transition(bool forward, double tick)
 void RenderWindow::drawBitmap(wxGraphicsContext* gc, wxGraphicsBitmap& bitmap, wxSize& originalSize)
 {
     wxSize newSize = getScaledSize(originalSize);
-    gc->DrawBitmap(bitmap, (GetSize().x - newSize.x) / 2, (GetSize().y - newSize.y) / 2, newSize.x, newSize.y);
+    gc->DrawBitmap(bitmap, (GetParent()->GetSize().x - newSize.x) / 2, (GetParent()->GetSize().y - newSize.y) / 2,
+                   newSize.x, newSize.y);
 }
 
 void RenderWindow::Increment(bool forward)
