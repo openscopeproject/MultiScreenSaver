@@ -1,3 +1,23 @@
+/*
+ * This file is part of MultiScreenSaver.
+ *
+ * Copyright (c) qu1ck 2022
+ *
+ * MultiScreenSaver is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * MultiScreenSaver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with MultiScreenSaver.
+ * If not, see https://www.gnu.org/licenses/.
+ */
+
+#ifndef __SAVERFRAME_H__
+#define __SAVERFRAME_H__
+
 #include <wx/graphics.h>
 #include <wx/image.h>
 #include <wx/timer.h>
@@ -68,3 +88,5 @@ class SaverFrame : public wxFrame
 
     RenderWindow* renderer;
 };
+
+#endif // __SAVERFRAME_H__
