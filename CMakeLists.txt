@@ -59,3 +59,12 @@ ADD_CUSTOM_COMMAND(
     COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\dpiawarescaleing.manifest\" -inputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1 -outputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1
     COMMENT "Adding display aware manifest..."
 )
+
+if(CMAKE_UPX_PATH)
+    ADD_CUSTOM_COMMAND(
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND "${CMAKE_UPX_PATH}" --best "$<TARGET_FILE:${PROJECT_NAME}>"
+        COMMENT "Compressing executable..."
+    )
+endif()

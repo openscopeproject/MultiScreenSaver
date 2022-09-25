@@ -2,7 +2,8 @@
     "cmake.installPrefix": "${workspaceFolder}/build/install",
     "cmake.configureSettings": {
         "CMAKE_TOOLCHAIN_FILE": "d:/devtools/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        //"CMAKE_UPX_PATH": "D:/devtools/upx-3.96-win64/upx.exe"
     },
     "cmake.generator": "Ninja",
     "cmake.buildDirectory": "${workspaceFolder}/build/vscode",

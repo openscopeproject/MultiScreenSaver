@@ -99,7 +99,6 @@ bool App::OnInit()
                 wxSize(rect.right - rect.left - 2 * m_config.margins, rect.bottom - rect.top - 2 * m_config.margins));
 
             frame->SetIcons(m_icons);
-            frame->Show();
             frame->renderer->Bind(wxEVT_LEFT_UP, &App::OnClose, this);
             frame->renderer->Bind(wxEVT_CLOSE_WINDOW, &App::OnFrameClose, this);
             frame->renderer->Bind(wxEVT_KEY_DOWN, &App::OnKey, this);
@@ -131,6 +130,8 @@ void App::StartScreensaver()
 {
     for (const auto& renderer : m_renderers)
         renderer->Draw();
+    for (const auto& frame : m_frames)
+        frame->Show();
 
     Bind(wxEVT_TIMER, &App::OnTimer, this);
     m_timer.Start(m_config.period * 1000);
