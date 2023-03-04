@@ -1,0 +1,9 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "multi-screen-saver",
+    "version-string": "1.0.0",
+    "dependencies": [
+        "wxwidgets"
+    ],
+    "builtin-baseline": "4efb7ed628be5e56eeee009524e6ca7f3cc49c74"
+}
