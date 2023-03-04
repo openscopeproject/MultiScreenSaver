@@ -47,7 +47,6 @@ class App : public wxApp
     void OnKey(wxKeyEvent& e);
 
     void StartScreensaver();
-    int enumerated_monitor = 1;
 
   private:
     void switchImage(bool forward);
@@ -145,8 +144,6 @@ bool App::OnCmdLineParsed(wxCmdLineParser& parser)
 
 void App::StartScreensaver()
 {
-    for (const auto& renderer : m_renderers)
-        renderer->Draw();
     for (const auto& frame : m_frames)
         frame->Show();
 

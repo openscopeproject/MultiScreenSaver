@@ -34,7 +34,6 @@ class RenderWindow : public wxWindow
     {
         Draw();
     };
-    void OnErase(const wxEraseEvent& e){};
     void Draw();
     void Transition(bool forward, double tick);
     void Increment(bool forward);
@@ -42,31 +41,6 @@ class RenderWindow : public wxWindow
     void LoadNextImage(bool forward);
 
   private:
-    wxGraphicsBitmap& currentBitmap()
-    {
-        return m_bitmaps[m_bitmapIndex % 3];
-    };
-    wxGraphicsBitmap& nextBitmap()
-    {
-        return m_bitmaps[(m_bitmapIndex + 1) % 3];
-    };
-    wxGraphicsBitmap& prevBitmap()
-    {
-        return m_bitmaps[(m_bitmapIndex + 2) % 3];
-    };
-    wxSize& currentBitmapSize()
-    {
-        return m_originalImgSizes[m_bitmapIndex % 3];
-    };
-    wxSize& nextBitmapSize()
-    {
-        return m_originalImgSizes[(m_bitmapIndex + 1) % 3];
-    };
-    wxSize& prevBitmapSize()
-    {
-        return m_originalImgSizes[(m_bitmapIndex + 2) % 3];
-    };
-
     void drawBitmap(wxGraphicsContext* gc, wxGraphicsBitmap& bitmap, wxSize& originalSize);
 
     wxSize getScaledSize(const wxSize& originalSize);
@@ -76,7 +50,6 @@ class RenderWindow : public wxWindow
     wxGraphicsBitmap m_bitmaps[3];
     Config::SCALE m_scaleMode;
     int m_imgIndex;
-    int m_bitmapIndex;
     wxArrayString m_files;
 };
 
