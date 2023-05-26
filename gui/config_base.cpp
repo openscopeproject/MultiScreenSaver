@@ -23,28 +23,32 @@ CONFIG_BASE::CONFIG_BASE( wxWindow* parent, wxWindowID id, const wxString& title
 	wxStaticBoxSizer* sbSizer1;
 	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( m_panel1, wxID_ANY, wxT("Image folders") ), wxVERTICAL );
 
+	m_panel2 = new wxPanel( sbSizer1->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxFlexGridSizer* fgSizer1;
 	fgSizer1 = new wxFlexGridSizer( 0, 2, 0, 0 );
 	fgSizer1->AddGrowableCol( 1 );
 	fgSizer1->SetFlexibleDirection( wxHORIZONTAL );
 	fgSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
-	m_staticText1 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Landscape"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText1 = new wxStaticText( m_panel2, wxID_ANY, wxT("Landscape"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText1->Wrap( -1 );
 	fgSizer1->Add( m_staticText1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_landscapeDir = new wxDirPickerCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxT("Select a folder"), wxDefaultPosition, wxDefaultSize, wxDIRP_DEFAULT_STYLE );
+	m_landscapeDir = new wxDirPickerCtrl( m_panel2, wxID_ANY, wxEmptyString, wxT("Select a folder"), wxDefaultPosition, wxDefaultSize, wxDIRP_DEFAULT_STYLE );
 	fgSizer1->Add( m_landscapeDir, 1, wxALL|wxEXPAND|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_staticText2 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Portrait"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText2 = new wxStaticText( m_panel2, wxID_ANY, wxT("Portrait"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText2->Wrap( -1 );
 	fgSizer1->Add( m_staticText2, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_portraitDir = new wxDirPickerCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxT("Select a folder"), wxDefaultPosition, wxDefaultSize, wxDIRP_DEFAULT_STYLE );
+	m_portraitDir = new wxDirPickerCtrl( m_panel2, wxID_ANY, wxEmptyString, wxT("Select a folder"), wxDefaultPosition, wxDefaultSize, wxDIRP_DEFAULT_STYLE );
 	fgSizer1->Add( m_portraitDir, 1, wxALL|wxEXPAND|wxALIGN_CENTER_VERTICAL, 5 );
 
 
-	sbSizer1->Add( fgSizer1, 1, wxEXPAND, 5 );
+	m_panel2->SetSizer( fgSizer1 );
+	m_panel2->Layout();
+	fgSizer1->Fit( m_panel2 );
+	sbSizer1->Add( m_panel2, 1, wxEXPAND, 5 );
 
 	m_recursiveScan = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Scan folders recursively"), wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizer1->Add( m_recursiveScan, 0, wxALL, 5 );

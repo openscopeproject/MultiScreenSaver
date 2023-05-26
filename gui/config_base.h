@@ -17,11 +17,11 @@
 #include <wx/settings.h>
 #include <wx/filepicker.h>
 #include <wx/sizer.h>
+#include <wx/panel.h>
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
 #include <wx/choice.h>
 #include <wx/spinctrl.h>
-#include <wx/panel.h>
 #include <wx/frame.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,7 @@ class CONFIG_BASE : public wxFrame
 
 	protected:
 		wxPanel* m_panel1;
+		wxPanel* m_panel2;
 		wxStaticText* m_staticText1;
 		wxDirPickerCtrl* m_landscapeDir;
 		wxStaticText* m_staticText2;
