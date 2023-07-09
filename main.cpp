@@ -25,8 +25,8 @@
 
 static const wxCmdLineEntryDesc g_cmdLineDesc[] = {
     {wxCMD_LINE_SWITCH, "h", "help", "Show command line help", wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP},
-    {wxCMD_LINE_SWITCH, "c", "", "Show configuration dialog", wxCMD_LINE_VAL_NONE},
-    {wxCMD_LINE_SWITCH, "C", "", "Show configuration dialog", wxCMD_LINE_VAL_NONE},
+    {wxCMD_LINE_OPTION, "c", "", "Show configuration dialog", wxCMD_LINE_VAL_STRING},
+    {wxCMD_LINE_OPTION, "C", "", "Show configuration dialog", wxCMD_LINE_VAL_STRING},
     {wxCMD_LINE_OPTION, "p", "", "Show preview in child window", wxCMD_LINE_VAL_NUMBER},
     {wxCMD_LINE_OPTION, "P", "", "Show preview in child window", wxCMD_LINE_VAL_NUMBER},
     {wxCMD_LINE_SWITCH, "s", "", "Run the screensaver", wxCMD_LINE_VAL_NONE},
