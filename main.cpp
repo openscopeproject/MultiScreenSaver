@@ -92,7 +92,8 @@ bool App::OnInit()
         wnd->SetHWND((WXHWND)m_previewHwnd);
 #pragma warning(pop)
 
-        RenderWindow* renderer = new RenderWindow(wnd, m_config.landscapeDir, m_config.recursive, m_config.scale);
+        RenderWindow* renderer =
+            new RenderWindow(wnd, m_config.landscapeDir, m_config.recursive, m_config.scale, m_config.transition);
         m_renderers.push_back(renderer);
         SetTopWindow(renderer);
         renderer->Show();
@@ -111,7 +112,7 @@ bool App::OnInit()
                 (rect.right - rect.left > rect.bottom - rect.top) ? m_config.landscapeDir : m_config.portraitDir;
 
             SaverFrame* frame = new SaverFrame(
-                path, m_config.recursive, m_config.scale,
+                path, m_config.recursive, m_config.scale, m_config.transition,
                 wxPoint(rect.left + m_config.margins, rect.top + m_config.margins),
                 wxSize(rect.right - rect.left - 2 * m_config.margins, rect.bottom - rect.top - 2 * m_config.margins));
 
@@ -169,10 +170,13 @@ void App::switchImage(bool forward)
 
         RenderWindow* renderer = m_renderers[m_updateRenderer];
 
-        for (double tick = 0.02; tick < 1.0; tick += .02)
+        if (m_config.transition != Config::TRANSITION::NONE)
         {
-            renderer->Transition(forward, tick);
-            wxMilliSleep(16);
+            for (double tick = 0.02; tick < 1.0; tick += .02)
+            {
+                renderer->Transition(forward, tick);
+                wxMilliSleep(16);
+            }
         }
 
         renderer->Increment(forward);
@@ -184,11 +188,14 @@ void App::switchImage(bool forward)
     }
     else
     {
-        for (double tick = 0.02; tick < 1.0; tick += .02)
+        if (m_config.transition != Config::TRANSITION::NONE)
         {
-            for (const auto& renderer : m_renderers)
-                renderer->Transition(forward, tick);
-            wxMilliSleep(16);
+            for (double tick = 0.02; tick < 1.0; tick += .02)
+            {
+                for (const auto& renderer : m_renderers)
+                    renderer->Transition(forward, tick);
+                wxMilliSleep(16);
+            }
         }
         for (const auto& renderer : m_renderers)
         {

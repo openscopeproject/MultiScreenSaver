@@ -76,11 +76,15 @@ CONFIG_BASE::CONFIG_BASE( wxWindow* parent, wxWindowID id, const wxString& title
 	m_scale->SetSelection( 0 );
 	fgSizer2->Add( m_scale, 0, wxALL|wxEXPAND, 5 );
 
+	m_staticText9 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Transition"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText9->Wrap( -1 );
+	fgSizer2->Add( m_staticText9, 0, wxALL, 5 );
 
-	fgSizer2->Add( 0, 0, 0, 0, 5 );
-
-
-	fgSizer2->Add( 0, 0, 0, 0, 5 );
+	wxString m_transitionChoices[] = { wxT("None"), wxT("Blend") };
+	int m_transitionNChoices = sizeof( m_transitionChoices ) / sizeof( wxString );
+	m_transition = new wxChoice( sbSizer2->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, m_transitionNChoices, m_transitionChoices, 0 );
+	m_transition->SetSelection( 1 );
+	fgSizer2->Add( m_transition, 0, wxALL|wxEXPAND, 5 );
 
 	m_staticText3 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Update period (sec)"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText3->Wrap( -1 );

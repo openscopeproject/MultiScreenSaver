@@ -62,8 +62,10 @@ class ImageScanner : public wxDirTraverser
     wxArrayString& files;
 };
 
-RenderWindow::RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale)
-    : wxWindow(parent, wxID_ANY, wxPoint(0, 0), wxDefaultSize, wxBORDER_NONE), m_scaleMode(aScale)
+RenderWindow::RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale,
+                           const Config::TRANSITION aTransition)
+    : wxWindow(parent, wxID_ANY, wxPoint(0, 0), wxDefaultSize, wxBORDER_NONE), m_scaleMode(aScale),
+      m_transition(aTransition)
 {
     m_renderer = wxGraphicsRenderer::GetDirect2DRenderer();
 
@@ -174,12 +176,12 @@ void RenderWindow::LoadNextImage(bool forward)
     m_originalImgSizes[bitmapIndex] = img.GetSize();
 }
 
-SaverFrame::SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
-                       const wxSize& aSize)
+SaverFrame::SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale,
+                       const Config::TRANSITION aTransition, const wxPoint& aPos, const wxSize& aSize)
     : wxFrame(nullptr, wxID_ANY, "MultiScreenSaver", aPos, aSize, 0 /*wxSTAY_ON_TOP */)
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    renderer = new RenderWindow(this, aPath, aRecursive, aScale);
+    renderer = new RenderWindow(this, aPath, aRecursive, aScale, aTransition);
     sizer->Add(renderer, 1, wxGROW, 0);
     SetSizer(sizer);
     Layout();

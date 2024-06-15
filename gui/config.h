@@ -33,6 +33,11 @@ struct Config
         FIT,
         ORIGINAL,
     } scale;
+    enum TRANSITION
+    {
+        NONE,
+        BLEND,
+    } transition;
     int period;
     int margins;
     bool stagger;

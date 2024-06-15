@@ -28,7 +28,8 @@
 class RenderWindow : public wxWindow
 {
   public:
-    RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale);
+    RenderWindow(wxWindow* parent, const wxString& aPath, const bool aRecursive, const Config::SCALE aScale,
+                 const Config::TRANSITION aTransition);
 
     void OnPaint(const wxPaintEvent& e)
     {
@@ -49,6 +50,7 @@ class RenderWindow : public wxWindow
     wxSize m_originalImgSizes[3];
     wxGraphicsBitmap m_bitmaps[3];
     Config::SCALE m_scaleMode;
+    Config::TRANSITION m_transition;
     int m_imgIndex;
     wxArrayString m_files;
 };
@@ -56,8 +58,8 @@ class RenderWindow : public wxWindow
 class SaverFrame : public wxFrame
 {
   public:
-    SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale, const wxPoint& aPos,
-               const wxSize& aSize);
+    SaverFrame(const wxString& aPath, const bool aRecursive, const Config::SCALE aScale,
+               const Config::TRANSITION aTransition, const wxPoint& aPos, const wxSize& aSize);
 
     RenderWindow* renderer;
 };

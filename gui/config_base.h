@@ -44,6 +44,8 @@ class CONFIG_BASE : public wxFrame
 		wxCheckBox* m_recursiveScan;
 		wxStaticText* m_staticText5;
 		wxChoice* m_scale;
+		wxStaticText* m_staticText9;
+		wxChoice* m_transition;
 		wxStaticText* m_staticText3;
 		wxSpinCtrl* m_period;
 		wxStaticText* m_staticText4;

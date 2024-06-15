@@ -4,9 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "config",
+            "type": "process",
+            "command": "${workspaceFolder}\\build\\install\\MultiScreenSaver.scr",
+            "options": {
+                "cwd": "${workspaceFolder}\\gui"
+            }
+        },
+        {
             "label": "run",
             "type": "process",
-            "command": "${workspaceFolder}\\build\\install\\app.exe",
+            "command": "${workspaceFolder}\\build\\install\\MultiScreenSaver.scr",
+            "args": [
+                "-s"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}\\gui"
             }
