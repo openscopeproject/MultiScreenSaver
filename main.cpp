@@ -62,22 +62,39 @@ class rotatingJPEGHandler : public wxJPEGHandler
         switch (result.Orientation)
         {
         case 1:
+        case 2:
             // unrotated image
             break;
         case 3:
+        case 4:
             // 180 deg off
             *image = image->Rotate180();
             break;
+        case 5:
         case 6:
             // needs correction 90 deg clockwise
             *image = image->Rotate90(true);
             break;
+        case 7:
         case 8:
             // needs correction 90 deg counterclockw
             *image = image->Rotate90(false);
             break;
         default:
             // unknown rotation
+            break;
+        }
+        switch (result.Orientation)
+        {
+        case 2:
+        case 4:
+        case 5:
+        case 7:
+            // in these cases, the image was (also) mirrored
+            *image = image->Mirror();
+            break;
+        default:
+            // not mirrored (or unknown)
             break;
         }
 
