@@ -76,11 +76,10 @@ RenderWindow::RenderWindow(wxWindow* parent, const wxString& aPath, const bool a
     std::mt19937 generator(rd());
 
     std::shuffle(m_files.begin(), m_files.end(), generator);
-    m_imgIndex = -1;
 
     for (int i = 0; i < 3; i++)
     {
-        Increment(true);
+        m_imgIndex = i;
         LoadNextImage(true);
     }
 
