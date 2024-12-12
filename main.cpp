@@ -16,7 +16,10 @@
  */
 
 #include <wx/cmdline.h>
+#include <wx/mstream.h>
 #include <wx/wx.h>
+
+#include <exif.h>
 
 #include <vector>
 
@@ -34,6 +37,53 @@ static const wxCmdLineEntryDesc g_cmdLineDesc[] = {
     {wxCMD_LINE_PARAM, "i", "ignored", "Ignored parameter", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
 
     {wxCMD_LINE_NONE}};
+
+class rotatingJPEGHandler : public wxJPEGHandler
+{
+  public:
+    virtual bool LoadFile(wxImage* image, wxInputStream& stream, bool verbose = true, int index = -1) override
+    {
+        wxMemoryInputStream stream_in_memory(stream, wxInvalidOffset);
+        wxStreamBuffer* buf = stream_in_memory.GetInputStreamBuffer();
+
+        easyexif::EXIFInfo result;
+        int code = result.parseFrom((unsigned char*)buf->GetBufferPos(), buf->GetBytesLeft());
+
+        if (!wxJPEGHandler::LoadFile(image, stream_in_memory, verbose, index))
+        {
+            return false;
+        }
+        if (code)
+        {
+            // exif parse error, ignore exif
+            return true;
+        }
+
+        switch (result.Orientation)
+        {
+        case 1:
+            // unrotated image
+            break;
+        case 3:
+            // 180 deg off
+            *image = image->Rotate180();
+            break;
+        case 6:
+            // needs correction 90 deg clockwise
+            *image = image->Rotate90(true);
+            break;
+        case 8:
+            // needs correction 90 deg counterclockw
+            *image = image->Rotate90(false);
+            break;
+        default:
+            // unknown rotation
+            break;
+        }
+
+        return true;
+    }
+};
 
 class App : public wxApp
 {
@@ -72,7 +122,7 @@ bool App::OnInit()
 {
     wxApp::OnInit();
 
-    wxImage::AddHandler(new wxJPEGHandler());
+    wxImage::AddHandler(new rotatingJPEGHandler());
     wxImage::AddHandler(new wxPNGHandler());
 
     m_icons = wxIconBundle("APP_ICON", 0);
