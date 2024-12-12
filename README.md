@@ -30,8 +30,10 @@ This project is built with cmake and vcpkg and requires wxwidgets library.
 Install vcpkg first, then install wxwidgets into vcpkg and run cmake. Make sure to define
 `CMAKE_TOOLCHAIN_FILE` pointing to `vcpkg/scripts/buildsystems/vcpkg.cmake`.
 
-Optionally pass `VCPKG_TARGET_TRIPLET="x64-windows-static"` and `CMAKE_UPX_PATH=path/to/upx.exe`
-to link statically and compress the executable.
+Make sure to pass `VCPKG_TARGET_TRIPLET="x64-windows-static"` to cmake to link the executable
+statically. If you use vscode the setting is already enabled in checked in config.
+
+Optionally pass `CMAKE_UPX_PATH=path/to/upx.exe` to compress the executable.
 
 Config form is created using wxFormBuilder, `config_base*` files are auto generated and should
 not be edited or formatted.
