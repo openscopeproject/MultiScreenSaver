@@ -39,6 +39,8 @@ set(wxWidgets_USE_STATIC ON)
 find_package(wxWidgets COMPONENTS core base adv REQUIRED)
 include(${wxWidgets_USE_FILE})
 
+find_library(EXIF_LIB easyexif REQUIRED)
+
 set(APP_SRC
     main.cpp
     saverframe.cpp
@@ -49,6 +51,7 @@ set(CMAKE_EXECUTABLE_SUFFIX .scr)
 
 add_executable(${PROJECT_NAME} WIN32 ${APP_SRC} ${APP_RESOURCES})
 target_link_libraries(${PROJECT_NAME} GUI)
+target_link_libraries(${PROJECT_NAME} ${EXIF_LIB})
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ".")

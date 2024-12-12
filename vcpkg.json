@@ -3,6 +3,7 @@
     "name": "multi-screen-saver",
     "version-string": "1.0.0",
     "dependencies": [
+        "easyexif",
         "wxwidgets"
     ],
     "builtin-baseline": "dafef74af53669ef1cc9015f55e0ce809ead62aa"
