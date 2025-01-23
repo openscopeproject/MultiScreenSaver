@@ -141,6 +141,7 @@ bool App::OnInit()
 
     wxImage::AddHandler(new rotatingJPEGHandler());
     wxImage::AddHandler(new wxPNGHandler());
+    wxImage::SetDefaultLoadFlags(wxImage::GetDefaultLoadFlags() & ~wxImage::Load_Verbose);
 
     m_icons = wxIconBundle("APP_ICON", 0);
 
